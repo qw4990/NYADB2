@@ -15,7 +15,11 @@ func TestPcacherSimple(t *testing.T) {
 	pc := pcacher.CreateCacheFile("/tmp/pcacher_simple_test.db", pcacher.PAGE_SIZE*50)
 	for i := 0; i < 100; i++ {
 		tmp := make([]byte, pcacher.PAGE_SIZE)
-		pg, err := pc.NewPage(tmp)
+		pgno, err := pc.NewPage(tmp)
+		if err != nil {
+			utils.Fatal(err)
+		}
+		pg, err := pc.GetPage(pgno)
 		if err != nil {
 			utils.Fatal(err)
 		}
@@ -54,7 +58,11 @@ func TestPcacherMultiSimple(t *testing.T) {
 			op := rand.Int() % 20
 			if op == 0 { // New Page
 				data := utils.RandBytes(pcacher.PAGE_SIZE)
-				pg, err := pc.NewPage(data)
+				pgno, err := pc.NewPage(data)
+				if err != nil {
+					utils.Fatal(err)
+				}
+				pg, err := pc.GetPage(pgno)
 				if err != nil {
 					if err == cacher.ErrCacheFull {
 						continue
@@ -91,13 +99,13 @@ func TestPcacherMultiSimple(t *testing.T) {
 }
 
 func TestPcacherMulti(t *testing.T) {
-	pc := pcacher.CreateCacheFile("/tmp/pcacher_multi_test.db", pcacher.PAGE_SIZE*50)
+	pc := pcacher.CreateCacheFile("/tmp/pcacher_multi_test.db", pcacher.PAGE_SIZE*10)
 	mpc := pcacher.NewMockPcacher()
 	lockNew := sync.Mutex{}
 
 	var noPages uint32
 	wg := sync.WaitGroup{}
-	noWorkers := 300
+	noWorkers := 30
 
 	wg.Add(noWorkers)
 
@@ -108,19 +116,14 @@ func TestPcacherMulti(t *testing.T) {
 				data := utils.RandBytes(pcacher.PAGE_SIZE)
 
 				lockNew.Lock() // 为了让pc和mpc同步更新, 多个线程同时new, 页号可能会出错.
-				pg, err := pc.NewPage(data)
+				_, err := pc.NewPage(data)
 				if err != nil {
-					if err == cacher.ErrCacheFull {
-						lockNew.Unlock()
-						continue
-					}
 					utils.Fatal(err)
 				}
 				mpc.NewPage(data)
 				lockNew.Unlock()
 
 				atomic.AddUint32(&noPages, 1)
-				pg.Release()
 			} else if op < 10 { // Check
 				mod := atomic.LoadUint32(&noPages)
 				if mod == 0 {

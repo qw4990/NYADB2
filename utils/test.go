@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"runtime"
 )
 
 func RandBytes(length int) []byte {
@@ -24,5 +25,11 @@ func RandBytes(length int) []byte {
 
 func Fatal(args ...interface{}) {
 	fmt.Println(args...)
+	fmt.Println()
+	fmt.Println()
+
+	buf := make([]byte, 1<<20)
+	runtime.Stack(buf, true)
+	fmt.Printf("\n%s", buf)
 	os.Exit(-1)
 }

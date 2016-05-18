@@ -64,3 +64,23 @@ func Int64ToRaw(num int64) []byte {
 	PutInt64(buf, num)
 	return buf
 }
+
+func PutUint64(buf []byte, num uint64) {
+	buffer := bytes.NewBuffer(buf)
+	buffer.Reset()
+	binary.Write(buffer, binary.LittleEndian, num)
+}
+
+func ParseUint64(raw []byte) uint64 {
+	var num uint64
+	reader := bytes.NewReader(raw)
+	binary.Read(reader, binary.LittleEndian, &num)
+
+	return num
+}
+
+func Uint64ToRaw(num uint64) []byte {
+	buf := make([]byte, 8)
+	PutUint64(buf, num)
+	return buf
+}

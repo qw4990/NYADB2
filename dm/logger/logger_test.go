@@ -11,10 +11,7 @@ func TestLogger(t *testing.T) {
 	lg.Log([]byte("eee"))
 	lg.Close()
 
-	lg, err := OpenLogFile("/tmp/logger_test.log")
-	if err != nil {
-		t.Fatal(err)
-	}
+	lg = OpenLogFile("/tmp/logger_test.log")
 	lg.Rewind()
 
 	log, end := lg.Next()

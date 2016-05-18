@@ -11,14 +11,6 @@ import (
 	"sync/atomic"
 )
 
-/*
-type Pcacher interface {
-    NewPage(initData []byte) (Page, error) // 新创建一页
-    GetPage(pgno Pgno) (Page, error)       // 根据叶号取得一页
-    Close()
-}
-*/
-
 type mockPcacher struct {
 	cache map[Pgno]*mockPage
 	lock  sync.Mutex
@@ -32,14 +24,14 @@ func NewMockPcacher() *mockPcacher {
 	}
 }
 
-func (mpc *mockPcacher) NewPage(initData []byte) (Page, error) {
-	pgno := Pgno(atomic.AddUint32(&mpc.noPages, 1))
-	pg := newMockPage(pgno, initData)
+func (mpc *mockPcacher) NewPage(initData []byte) (Pgno, error) {
 	mpc.lock.Lock()
 	defer mpc.lock.Unlock()
 
+	pgno := Pgno(atomic.AddUint32(&mpc.noPages, 1))
+	pg := newMockPage(pgno, initData)
 	mpc.cache[pgno] = pg
-	return pg, nil
+	return pgno, nil
 }
 
 func (mpc *mockPcacher) GetPage(pgno Pgno) (Page, error) {

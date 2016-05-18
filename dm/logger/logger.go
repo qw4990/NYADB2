@@ -46,10 +46,10 @@ type logger struct {
 	xChecksum uint32
 }
 
-func OpenLogFile(path string) (*logger, error) {
+func OpenLogFile(path string) *logger {
 	file, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	lg := new(logger)
@@ -57,10 +57,10 @@ func OpenLogFile(path string) (*logger, error) {
 
 	err = lg.init()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	return lg, nil
+	return lg
 }
 
 func CreateLogFile(path string) *logger {

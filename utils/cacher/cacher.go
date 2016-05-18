@@ -86,6 +86,7 @@ func (c *cacher) Get(uid utils.UUID) (interface{}, error) {
 	underlying, err := c.options.Get(uid)
 	if err != nil {
 		c.lock.Lock()
+		c.count--
 		delete(c.getting, uid)
 		c.lock.Unlock()
 		return nil, err
@@ -113,6 +114,7 @@ func (c *cacher) Close() {
 
 func (c *cacher) Release(uid utils.UUID) {
 	c.lock.Lock()
+	defer c.lock.Unlock()
 	c.refs[uid]--
 	if c.refs[uid] == 0 {
 		underlying := c.cache[uid]
@@ -126,5 +128,4 @@ func (c *cacher) Release(uid utils.UUID) {
 		delete(c.cache, uid)
 		c.count--
 	}
-	c.lock.Unlock()
 }

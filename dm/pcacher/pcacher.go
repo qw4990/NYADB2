@@ -25,7 +25,14 @@ const (
 )
 
 type Pcacher interface {
-	NewPage(initData []byte) (Page, error) // 新创建一页
+	/*
+		该函数返回一个Pgno, 而不是一个Page, 原因是:
+		如果返回一个Page, 则实际上整个过程是需要两步, 1)创建新页, 2)从cache中取得新页.
+		问题出在, 如果1)成功, 而2)因为cache full而失败, 则将不能返回Page, 导致新页不能马上
+		被利用, 因此还不如不要2)过程, 直接返回Pgno.
+		将2)过程交给用户去调用GetPage()
+	*/
+	NewPage(initData []byte) (Pgno, error) // 新创建一页, 返回新页页号
 	GetPage(pgno Pgno) (Page, error)       // 根据叶号取得一页
 	Close()
 }
@@ -85,17 +92,16 @@ func (p *pcacher) Close() {
 	p.c.Close()
 }
 
-func (p *pcacher) NewPage(initData []byte) (Page, error) {
+func (p *pcacher) NewPage(initData []byte) (Pgno, error) {
 	if len(initData) != PAGE_SIZE {
-		return nil, ErrInvalidInitData
+		return 0, ErrInvalidInitData
 	}
 
 	// 将noPages增加1, 且预留出一个页号的位置.
 	pgno := Pgno(atomic.AddUint32(&p.noPages, 1))
 	pg := NewPage(pgno, initData, nil)
 	p.flush(pg)
-
-	return p.GetPage(pgno)
+	return pgno, nil
 }
 
 func (p *pcacher) GetPage(pgno Pgno) (Page, error) {
@@ -121,7 +127,7 @@ func (p *pcacher) getForCacher(uid utils.UUID) (interface{}, error) {
 	}
 	p.fileLock.Unlock()
 
-	pg := NewPage(pgno, buf, p.c)
+	pg := NewPage(pgno, buf, p)
 	return pg, nil
 }
 
@@ -133,6 +139,10 @@ func (p *pcacher) releaseForCacher(underlying interface{}) {
 		p.flush(pg)
 		pg.dirty = false
 	}
+}
+
+func (p *pcacher) release(pg *page) {
+	p.c.Release(Pgno2UUID(pg.pgno))
 }
 
 // flush 刷新某一页的内容到DB文件.

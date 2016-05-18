@@ -11,10 +11,7 @@
 */
 package pcacher
 
-import (
-	"nyadb2/utils/cacher"
-	"sync"
-)
+import "sync"
 
 type Page interface {
 	Pgno() Pgno   // 取得页号
@@ -32,14 +29,14 @@ type page struct {
 	dirty bool
 	lock  sync.Mutex
 
-	c cacher.Cacher
+	pc *pcacher
 }
 
-func NewPage(pgno Pgno, data []byte, c cacher.Cacher) *page {
+func NewPage(pgno Pgno, data []byte, pc *pcacher) *page {
 	return &page{
 		pgno: pgno,
 		data: data,
-		c:    c,
+		pc:   pc,
 	}
 }
 
@@ -52,7 +49,7 @@ func (p *page) Lock() {
 }
 
 func (p *page) Release() {
-	p.c.Release(Pgno2UUID(p.pgno))
+	p.pc.release(p)
 }
 
 func (p *page) Dirty() {
