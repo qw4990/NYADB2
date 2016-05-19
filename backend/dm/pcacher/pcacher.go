@@ -55,7 +55,7 @@ type pcacher struct {
 }
 
 func CreateCacheFile(path string, mem int64) *pcacher {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	file, err := os.OpenFile(path+utils.SUFFIX_DB, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +64,7 @@ func CreateCacheFile(path string, mem int64) *pcacher {
 }
 
 func OpenCacheFile(path string, mem int64) *pcacher {
-	file, err := os.OpenFile(path, os.O_RDWR, 0666)
+	file, err := os.OpenFile(path+utils.SUFFIX_DB, os.O_RDWR, 0666)
 	if err != nil {
 		panic(err)
 	}

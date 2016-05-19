@@ -55,7 +55,7 @@ type logger struct {
 }
 
 func OpenLogFile(path string) *logger {
-	file, err := os.OpenFile(path, os.O_RDWR, 0666)
+	file, err := os.OpenFile(path+utils.SUFFIX_LOG, os.O_RDWR, 0666)
 	if err != nil {
 		panic(err)
 	}
@@ -72,7 +72,7 @@ func OpenLogFile(path string) *logger {
 }
 
 func CreateLogFile(path string) *logger {
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	file, err := os.OpenFile(path+utils.SUFFIX_LOG, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		panic(err)
 	}

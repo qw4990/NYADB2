@@ -53,8 +53,8 @@ func newDataManager(pc pcacher.Pcacher, lg logger.Logger, tm tm.TransactionManag
 }
 
 func OpenDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
-	pc := pcacher.OpenCacheFile(path+utils.SUFFIX_DB, mem)
-	lg := logger.OpenLogFile(path + utils.SUFFIX_LOG)
+	pc := pcacher.OpenCacheFile(path, mem)
+	lg := logger.OpenLogFile(path)
 
 	dm := newDataManager(pc, lg, tm)
 	if dm.loadAndCheckPage1() == false {
@@ -69,8 +69,8 @@ func OpenDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
 }
 
 func CreateDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
-	pc := pcacher.CreateCacheFile(path+utils.SUFFIX_DB, mem)
-	lg := logger.CreateLogFile(path + utils.SUFFIX_LOG)
+	pc := pcacher.CreateCacheFile(path, mem)
+	lg := logger.CreateLogFile(path)
 
 	dm := newDataManager(pc, lg, tm)
 	dm.initPage1()
@@ -227,6 +227,6 @@ func (dm *dataManager) logDataitem(xid tm.XID, di *dataitem) {
 	dm.lg.Log(log)
 }
 
-func (dm *dataManager) releaseDataitem(di *dataitem) {
+func (dm *dataManager) ReleaseDataitem(di *dataitem) {
 	dm.dic.Release(di.uid)
 }

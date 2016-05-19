@@ -122,7 +122,7 @@ func (di *dataitem) After(xid tm.XID) {
 	di.rwlock.Unlock()
 }
 func (di *dataitem) Release() {
-	di.dm.releaseDataitem(di)
+	di.dm.ReleaseDataitem(di)
 }
 func (di *dataitem) Lock() {
 	di.rwlock.Lock()
