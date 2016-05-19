@@ -2,6 +2,11 @@ package utils
 
 type UUID uint64
 
+var (
+	INF     UUID = (1 << 63) - 1 + (1 << 63)
+	NilUUID UUID = 0
+)
+
 const (
 	LEN_UUID = 8
 )

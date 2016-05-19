@@ -80,7 +80,7 @@ func ParseInt64(raw []byte) int64 {
 }
 
 func Int64ToRaw(num int64) []byte {
-	buf := make([]byte, 0, 8)
+	buf := make([]byte, 8)
 	PutInt64(buf, num)
 	return buf
 }
@@ -100,7 +100,7 @@ func ParseUint64(raw []byte) uint64 {
 }
 
 func Uint64ToRaw(num uint64) []byte {
-	buf := make([]byte, 0, 8)
+	buf := make([]byte, 8)
 	PutUint64(buf, num)
 	return buf
 }
