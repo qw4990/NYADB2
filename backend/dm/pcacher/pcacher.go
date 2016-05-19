@@ -42,6 +42,7 @@ type Pcacher interface {
 	*/
 	TruncateByPgno(maxPgno Pgno) // 将DB扩充为maxPgno这么多页的空间大小
 	NoPages() int                // 返回DB中一共有多少页
+	FlushPage(pg Page)           // 强制刷新pg到磁盘
 }
 
 type pcacher struct {
@@ -177,6 +178,11 @@ func (p *pcacher) TruncateByPgno(maxPgno Pgno) {
 
 func (p *pcacher) NoPages() int {
 	return int(p.noPages)
+}
+
+func (p *pcacher) FlushPage(pgi Page) {
+	pg := pgi.(*page)
+	p.flush(pg)
 }
 
 func pageOffset(pgno Pgno) int64 {

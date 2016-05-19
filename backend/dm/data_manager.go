@@ -110,6 +110,8 @@ func (dm *dataManager) initPage1() {
 	if err != nil {
 		panic(err)
 	}
+
+	dm.pc.FlushPage(dm.page1)
 }
 
 func (dm *dataManager) Close() {

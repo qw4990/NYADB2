@@ -237,7 +237,7 @@ func (lg *logger) checkAndRemoveTail() error {
 	}
 
 	if xChecksum == lg.xChecksum {
-		err := lg.file.Truncate(lg.pos)
+		err := lg.file.Truncate(lg.pos) // 去掉bad tail
 		if err != nil {
 			return err
 		}

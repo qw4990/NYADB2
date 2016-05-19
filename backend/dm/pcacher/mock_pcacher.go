@@ -52,6 +52,9 @@ func (mpc *mockPcacher) NoPages() int {
 	return int(mpc.noPages)
 }
 
+func (mpc *mockPcacher) FlushPage(pgi Page) {
+}
+
 type mockPage struct {
 	pgno Pgno
 	data []byte

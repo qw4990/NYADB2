@@ -77,7 +77,7 @@ func WrapDataitemRaw(data []byte) []byte {
 
 // UnValidRawDataitem 将raw表示的Dataitem标记为非法.
 // 该函数只会被Recovery调用.
-func UnValidRawDataitem(raw []byte) {
+func InValidRawDataitem(raw []byte) {
 	raw[_OF_VALID_FLAG] = byte(1)
 }
 

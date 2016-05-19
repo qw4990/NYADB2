@@ -23,11 +23,13 @@ func initUids() {
 }
 
 func worker(dm0, dm1 dm.DataManager, noTasks int, insertRation int) {
+	dataLen := 60
+
 	defer wg.Done()
 	for i := 0; i < noTasks; i++ {
 		op := rand.Int() % 100
 		if op < insertRation { // Insert
-			data := utils.RandBytes(50)
+			data := utils.RandBytes(dataLen)
 			u0, err := dm0.Insert(0, data)
 			if err != nil {
 				/*
@@ -37,7 +39,10 @@ func worker(dm0, dm1 dm.DataManager, noTasks int, insertRation int) {
 				*/
 				continue
 			}
-			u1, _ := dm1.Insert(0, data)
+			u1, err := dm1.Insert(0, data)
+			if err != nil {
+				utils.Fatal(err)
+			}
 
 			uidsLock.Lock()
 			uids0 = append(uids0, u0)
@@ -54,8 +59,11 @@ func worker(dm0, dm1 dm.DataManager, noTasks int, insertRation int) {
 			u1 := uids1[tmp]
 			uidsLock.Unlock()
 
-			data0, _, err := dm0.Read(u0)
+			data0, ok, err := dm0.Read(u0)
 			if err != nil {
+				continue
+			}
+			if ok == false { // 有可能为非法的dataitem
 				continue
 			}
 			data1, _, _ := dm1.Read(u1)
@@ -63,12 +71,12 @@ func worker(dm0, dm1 dm.DataManager, noTasks int, insertRation int) {
 			data0.RLock()
 			data1.RLock()
 			if bytes.Compare(data0.Data(), data1.Data()) != 0 {
-				utils.Fatal("error")
+				utils.Fatal("Check Error!")
 			}
 			data1.RUnlock()
 			data0.RUnlock()
 
-			newData := utils.RandBytes(50)
+			newData := utils.RandBytes(dataLen)
 			data0.Before()
 			data1.Before()
 			copy(data0.Data(), newData)
@@ -109,18 +117,22 @@ func TestDMMulti(t *testing.T) {
 	wg.Wait()
 }
 
-func TestRecoverySingle(t *testing.T) {
-	tm0 := tm.CreateXIDFile("/tmp/TestRecoverySingle")
-	dm0 := dm.CreateDB("/tmp/TestRecoverySingle", pcacher.PAGE_SIZE*10, tm0)
+func TestRecoverySimple(t *testing.T) {
+	tm0 := tm.CreateXIDFile("/tmp/TestRecoverySimple")
+	dm0 := dm.CreateDB("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*30, tm0)
 	mdm := dm.CreateMockDB("ttt", 0, tm0)
+	dm0.Close()
 
 	initUids()
-	wg.Add(1)
-	worker(dm0, mdm, 10000, 50)
 
-	// 此处不调用dm0.Close(), 立即重新打开DB, 触发Recovery.
-	dm0 = dm.OpenDB("/tmp/TestRecoverySingle", pcacher.PAGE_SIZE*10, tm0)
-	// 然后继续用worker进行测试
-	wg.Add(1)
-	worker(dm0, mdm, 100000, 0)
+	noWorkers := 50
+	for i := 0; i < 8; i++ {
+		// 另上一次关闭时, 不调用dm0.Close(), 立即重新打开DB, 触发Recovery.
+		dm0 = dm.OpenDB("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*10, tm0)
+		wg.Add(noWorkers)
+		for k := 0; k < noWorkers; k++ {
+			go worker(dm0, mdm, 2000, 50)
+		}
+		wg.Wait()
+	}
 }

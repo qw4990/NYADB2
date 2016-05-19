@@ -42,6 +42,9 @@ func Recover(tm tm.TransactionManager, lg logger.Logger, pc pcacher.Pcacher) {
 			maxPgno = pgno
 		}
 	}
+	if maxPgno == 0 { // 即使maxPgno为0, page1是能被DM保证在磁盘上的
+		maxPgno = 1
+	}
 	pc.TruncateByPgno(maxPgno)
 	utils.Info("Truncate to ", maxPgno, " pages.")
 
@@ -220,7 +223,7 @@ func doInsertLog(pc pcacher.Pcacher, log []byte, flag int) {
 	}
 	defer pg.Release()
 	if flag == _UNDO { // 如果为UNDO, 则把该dataitem标记为非法.
-		UnValidRawDataitem(raw)
+		InValidRawDataitem(raw)
 	}
 	PXRecoverInsert(pg, offset, raw)
 }
