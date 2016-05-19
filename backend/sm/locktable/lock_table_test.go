@@ -6,6 +6,19 @@ import (
 	"testing"
 )
 
+func TestLockTableMulti(t *testing.T) {
+	lt := locktable.NewLockTable()
+	_, ch1 := lt.Add(1, 1)
+	_, ch2 := lt.Add(1, 2)
+	_, ch3 := lt.Add(1, 3)
+	_, ch4 := lt.Add(1, 4)
+
+	<-ch1
+	<-ch2
+	<-ch3
+	<-ch4
+}
+
 func TestLockTable(t *testing.T) {
 	lt := locktable.NewLockTable()
 	ok, _ := lt.Add(1, 1)

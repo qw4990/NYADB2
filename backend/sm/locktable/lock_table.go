@@ -2,6 +2,7 @@ package locktable
 
 import (
 	"container/list"
+	"fmt"
 	"nyadb2/backend/utils"
 	"sync"
 )
@@ -57,7 +58,7 @@ func (lt *lockTable) Add(xid, uid utils.UUID) (bool, chan struct{}) {
 
 	// 尝试将xid->uid的等待边加入到图中, 然后判断是否会造成死锁.
 	lt.xwaitu[xid] = uid
-	putIntoList(lt.wait, xid, uid)
+	putIntoList(lt.wait, uid, xid)
 	if lt.hasDeadLock() == true {
 		delete(lt.xwaitu, xid)
 		removeFromList(lt.wait, xid, uid)
@@ -111,8 +112,10 @@ func (lt *lockTable) hasDeadLock() bool {
 
 // selectNewXID 为uid从等待队列中, 选择下一个xid来占用它.
 func (lt *lockTable) selectNewXID(uid utils.UUID) {
+	fmt.Println("Select for ", uid)
 	l := lt.wait[uid]
 	if l == nil {
+		fmt.Println("Select Nil")
 		return
 	}
 	utils.Assert(l.Len() > 0)
@@ -121,9 +124,11 @@ func (lt *lockTable) selectNewXID(uid utils.UUID) {
 		e := l.Front()
 		v := l.Remove(e)
 		xid := v.(utils.UUID)
+		fmt.Println("select xid ", xid)
 		if _, ok := lt.waitCh[xid]; ok == false { // 有可能该事务已经被撤销
 			continue
 		} else {
+			fmt.Println("sec succ")
 			lt.u2x[uid] = xid      // 将该uid指向xid
 			ch := lt.waitCh[xid]   // 对xid进行回应
 			delete(lt.waitCh, xid) // 删除该xid的等待通道

@@ -1,18 +1,14 @@
 package sm
 
-import (
-	"nyadb2/backend/tm"
-	"nyadb2/backend/utils"
-)
+import "nyadb2/backend/tm"
 
 // IsVersionSkip 检测是否发生了版本跳跃
 func IsVersionSkip(tm tm.TransactionManager, t *transaction, e *entry) bool {
 	xmax := e.XMAX()
-	if t.Level == 0 {
-		utils.Assert(xmax == 0) // 如果xmax不等于0, 则对该事务来说肯定是读不到的
+	if t.Level == 0 { // readCommitted 不判断版本跳跃, 直接返回false
 		return false
 	} else {
-		return xmax > t.XID || t.InSnapShot(xmax)
+		return tm.IsCommited(xmax) && (xmax > t.XID || t.InSnapShot(xmax))
 	}
 }
 

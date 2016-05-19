@@ -2,6 +2,7 @@ package sm
 
 import (
 	"errors"
+	"fmt"
 	"nyadb2/backend/dm"
 	"nyadb2/backend/sm/locktable"
 	"nyadb2/backend/tm"
@@ -82,7 +83,9 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 		t.Err = ErrCannotSR
 		return false, t.Err
 	}
+	fmt.Println(xid, " waiting ", uuid)
 	<-ch
+	fmt.Println("Over")
 
 	handle, err := sm.ec.Get(uuid)
 	if err == ErrNilEntry {
