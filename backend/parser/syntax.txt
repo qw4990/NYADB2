@@ -1,0 +1,57 @@
+<begin statement>
+    begin [isolation level (read committed|repeatable read)]
+        begin isolation level read committed
+
+<commit statement>
+    commit
+
+<abort statement>
+    abort
+
+<create statement>
+    create table <table name>
+    <field name> <field type>
+    <field name> <field type>
+    ...
+    <field name> <field type>
+    [(index <field name list>)]
+        create table students
+        id int32,
+        name string,
+        age int32,
+        (index id name)
+
+<drop statement>
+    drop table <table name>
+        drop table students
+
+<read statement>
+    read (*|<field name list>) from <table name> [<where statement>]
+        read * from student where id = 1
+        read name from student where id > 1 and id < 4
+        read name, age, id from student where id = 12
+
+<insert statement>
+    insert into <table name> values <value list>
+        insert into student values 5 "Zhang Yuanjia" 22
+
+<delete statement>
+    delete from <table name> <where statement>
+        delete from student where name = "Zhang Yuanjia"
+
+<update statement>
+    update <table name> set <field name>=<value> [<where statement>]
+        update student set name = "ZYJ" where id = 5
+
+<where statement>
+    where <field name> (>|<|=) <value> [(and|or) <field name> (>|<|=) <value>]
+        where age > 10 or age < 3
+
+<field name> <table name>
+    [a-zA-Z][a-zA-Z0-9]*
+
+<field type>
+    int32 int64 float string binary
+
+<value>
+    .*
