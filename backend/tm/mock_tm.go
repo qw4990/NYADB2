@@ -3,10 +3,10 @@ package tm
 type MockTranManager struct {
 }
 
-func CreateMockXIDFile(path string) *MockTranManager {
+func CreateMock(path string) *MockTranManager {
 	return new(MockTranManager)
 }
-func OpenMockXIDFile(path string) *MockTranManager {
+func OpenMock(path string) *MockTranManager {
 	return new(MockTranManager)
 }
 

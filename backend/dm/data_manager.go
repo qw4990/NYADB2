@@ -52,9 +52,9 @@ func newDataManager(pc pcacher.Pcacher, lg logger.Logger, tm tm.TransactionManag
 	return dm
 }
 
-func OpenDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
-	pc := pcacher.OpenCacheFile(path, mem)
-	lg := logger.OpenLogFile(path)
+func Open(path string, mem int64, tm tm.TransactionManager) *dataManager {
+	pc := pcacher.Open(path, mem)
+	lg := logger.Open(path)
 
 	dm := newDataManager(pc, lg, tm)
 	if dm.loadAndCheckPage1() == false {
@@ -64,13 +64,14 @@ func OpenDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
 	dm.fillPindex()
 
 	P1SetVCOpen(dm.page1)
+	dm.pc.FlushPage(dm.page1)
 
 	return dm
 }
 
-func CreateDB(path string, mem int64, tm tm.TransactionManager) *dataManager {
-	pc := pcacher.CreateCacheFile(path, mem)
-	lg := logger.CreateLogFile(path)
+func Create(path string, mem int64, tm tm.TransactionManager) *dataManager {
+	pc := pcacher.Create(path, mem)
+	lg := logger.Create(path)
 
 	dm := newDataManager(pc, lg, tm)
 	dm.initPage1()

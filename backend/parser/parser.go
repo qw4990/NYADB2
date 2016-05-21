@@ -7,7 +7,7 @@ package parser
 import (
 	"errors"
 
-	"nyadb/backend/parser/statement"
+	"nyadb2/backend/parser/statement"
 )
 
 var (

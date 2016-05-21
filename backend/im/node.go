@@ -32,7 +32,7 @@ const (
 	这样, 内部节点和叶节点就有了一致的二进制结构.
 */
 type node struct {
-	dm       dm.DataManager
+	bt       *bPlusTree
 	dataitem dm.Dataitem
 
 	raw      []byte
@@ -123,15 +123,15 @@ func newNilRootRaw() []byte {
 }
 
 // loadNode 读入一个节点, 其自身地址为selfuuid
-func loadNode(dm dm.DataManager, selfUUID utils.UUID) (*node, error) {
-	dataitem, ok, err := dm.Read(selfUUID)
+func loadNode(bt *bPlusTree, selfUUID utils.UUID) (*node, error) {
+	dataitem, ok, err := bt.DM.Read(selfUUID)
 	if err != nil {
 		return nil, err
 	}
 	utils.Assert(ok == true)
 
 	return &node{
-		dm:       dm,
+		bt:       bt,
 		dataitem: dataitem,
 		raw:      dataitem.Data(),
 		selfUUID: selfUUID,
@@ -279,7 +279,7 @@ func (u *node) split() (utils.UUID, utils.UUID, error) {
 	setRawNoKeys(nodeRaw, _BALANCE_NUMBER)
 	setRawSibling(nodeRaw, getRawSibling(u.raw))
 	copyRawFromKth(u.raw, nodeRaw, _BALANCE_NUMBER)
-	son, err := u.dm.Insert(tm.SUPER_XID, nodeRaw)
+	son, err := u.bt.DM.Insert(tm.SUPER_XID, nodeRaw)
 
 	if err != nil {
 		return utils.NilUUID, utils.NilUUID, err

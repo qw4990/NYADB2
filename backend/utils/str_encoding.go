@@ -1,28 +1,53 @@
 package utils
 
-func StrToUint64(str string) uint64 {
+import (
+	"strconv"
+)
+
+// StrToUUID 将str转换为UUID, 使用了一种简单的hash算法, 可能会有冲突.
+// 另外转换后的UUID将无序.
+func StrToUUID(str string) UUID {
+	var seed uint64 = 13331
 	var result uint64
-	for _, n := range str {
-		result = result*10 + uint64(n-'0')
+	for _, b := range str {
+		result = result*seed + uint64(b)
 	}
-	return result
+	return UUID(result)
+}
+
+func VarStrToRaw(str string) []byte {
+	length := len(str)
+	raw := Uint32ToRaw(uint32(length))
+	raw = append(raw, []byte(str)...)
+	return raw
+}
+
+func ParseVarStr(raw []byte) (string, int) {
+	length := ParseUint32(raw)
+	return string(raw[4 : 4+length]), int(length) + 4
+}
+
+func StrToUint64(str string) (uint64, error) {
+	return strconv.ParseUint(str, 10, 64)
 }
 
 func Uint64ToStr(num uint64) string {
-	if num == 0 {
-		return "0"
-	}
+	return strconv.FormatUint(num, 10)
+}
 
-	buf := make([]byte, 30)
-	i := 0
-	for num > 0 {
-		t := num % 10
-		num /= 10
-		buf[i] = byte(t + '0')
-		i++
-	}
-	for k := 0; k < i/2; k++ {
-		buf[k], buf[i-k-1] = buf[i-k-1], buf[k]
-	}
-	return string(buf[:i])
+func StrToInt64(str string) (int64, error) {
+	return strconv.ParseInt(str, 10, 64)
+}
+
+func Int64ToStr(num int64) string {
+	return strconv.FormatInt(num, 10)
+}
+
+func StrToInt32(str string) (int32, error) {
+	i64, err := strconv.ParseInt(str, 10, 32)
+	return int32(i64), err
+}
+
+func Int32ToStr(num int32) string {
+	return strconv.FormatInt(int64(num), 10)
 }

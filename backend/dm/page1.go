@@ -33,21 +33,23 @@ func P1InitRaw() []byte {
 
 // p1RawSetVCOpen 为VC1填入一串随机数列.
 func p1RawSetVCOpen(raw []byte) {
-	copy(raw[_P1_OF_VC:], utils.RandBytes(_P1_LEN_VC))
+	copy(raw[_P1_OF_VC:_P1_OF_VC+_P1_LEN_VC], utils.RandBytes(_P1_LEN_VC))
 }
 
 // p1RawSetVCClose 将VC1的内容拷贝到VC2
 func p1RawSetVCClose(raw []byte) {
-	copy(raw[_P1_OF_VC+_P1_LEN_VC:_P1_OF_VC+_P1_LEN_VC*2], raw[_P1_OF_VC:])
+	copy(raw[_P1_OF_VC+_P1_LEN_VC:_P1_OF_VC+_P1_LEN_VC*2], raw[_P1_OF_VC:_P1_OF_VC+_P1_LEN_VC])
 }
 
 // P1SetVCOpen 让dm在Open的时候调用.
 func P1SetVCOpen(pg pcacher.Page) {
+	pg.Dirty()
 	p1RawSetVCOpen(pg.Data())
 }
 
 // P1SetVCClose 让dm在Close的时候调用.
 func P1SetVCClose(pg pcacher.Page) {
+	pg.Dirty()
 	p1RawSetVCClose(pg.Data())
 }
 
@@ -56,5 +58,5 @@ func P1CheckVC(pg pcacher.Page) bool {
 	return p1RawCheckVC(pg.Data())
 }
 func p1RawCheckVC(raw []byte) bool {
-	return bytes.Compare(raw[_P1_OF_VC:], raw[_P1_OF_VC+_P1_LEN_VC:_P1_OF_VC+_P1_LEN_VC*2]) == 0
+	return bytes.Compare(raw[_P1_OF_VC:_P1_OF_VC+_P1_LEN_VC], raw[_P1_OF_VC+_P1_LEN_VC:_P1_OF_VC+_P1_LEN_VC*2]) == 0
 }

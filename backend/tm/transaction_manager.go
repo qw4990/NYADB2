@@ -19,7 +19,6 @@ package tm
 
 import (
 	"errors"
-	"nyadb2/backend/utils"
 	"os"
 	"sync"
 )
@@ -31,6 +30,8 @@ const (
 	_FIELD_TRAN_ACTIVE   = 0 // 事务三种状态
 	_FIELD_TRAN_COMMITED = 1
 	_FIELD_TRAN_ABORTED  = 2
+
+	SUFFIX_XID = ".xid"
 )
 
 var (
@@ -54,8 +55,8 @@ type transactionManager struct {
 	counterLock sync.Mutex
 }
 
-func CreateXIDFile(path string) *transactionManager {
-	file, err := os.OpenFile(path+utils.SUFFIX_XID, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+func Create(path string) *transactionManager {
+	file, err := os.OpenFile(path+SUFFIX_XID, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
@@ -69,8 +70,8 @@ func CreateXIDFile(path string) *transactionManager {
 	return newTransactionManager(file)
 }
 
-func OpenXIDFile(path string) *transactionManager {
-	file, err := os.OpenFile(path+utils.SUFFIX_XID, os.O_RDWR, 0666)
+func Open(path string) *transactionManager {
+	file, err := os.OpenFile(path+SUFFIX_XID, os.O_RDWR, 0600)
 	if err != nil {
 		panic(err)
 	}

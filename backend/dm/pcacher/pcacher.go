@@ -7,7 +7,6 @@ package pcacher
 
 import (
 	"errors"
-	"fmt"
 	"nyadb2/backend/utils"
 	"nyadb2/backend/utils/cacher"
 	"os"
@@ -22,6 +21,8 @@ var (
 const (
 	PAGE_SIZE = 1 << 13
 	_MEM_LIM  = 10
+
+	SUFFIX_DB = ".db"
 )
 
 type Pcacher interface {
@@ -54,8 +55,8 @@ type pcacher struct {
 	c cacher.Cacher
 }
 
-func CreateCacheFile(path string, mem int64) *pcacher {
-	file, err := os.OpenFile(path+utils.SUFFIX_DB, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+func Create(path string, mem int64) *pcacher {
+	file, err := os.OpenFile(path+SUFFIX_DB, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}
@@ -63,8 +64,8 @@ func CreateCacheFile(path string, mem int64) *pcacher {
 	return newPcacher(file, mem)
 }
 
-func OpenCacheFile(path string, mem int64) *pcacher {
-	file, err := os.OpenFile(path+utils.SUFFIX_DB, os.O_RDWR, 0666)
+func Open(path string, mem int64) *pcacher {
+	file, err := os.OpenFile(path+SUFFIX_DB, os.O_RDWR, 0600)
 	if err != nil {
 		panic(err)
 	}
@@ -127,8 +128,7 @@ func (p *pcacher) getForCacher(uid utils.UUID) (interface{}, error) {
 	p.fileLock.Lock()
 	_, err := p.file.ReadAt(buf, offset)
 	if err != nil {
-		fmt.Println(uid)
-		panic(err) // 如果DB文件出了问题, 则应该立即停止.
+		utils.Fatal(uid, " Read: ", pgno, ", ", offset, " ", err) // 如果DB文件出了问题, 则应该立即停止
 	}
 	p.fileLock.Unlock()
 

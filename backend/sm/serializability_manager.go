@@ -2,7 +2,6 @@ package sm
 
 import (
 	"errors"
-	"fmt"
 	"nyadb2/backend/dm"
 	"nyadb2/backend/sm/locktable"
 	"nyadb2/backend/tm"
@@ -24,12 +23,11 @@ type SerializabilityManager interface {
 	Begin(level int) tm.XID
 	Commit(xid tm.XID) error
 	Abort(xid tm.XID)
-	Close()
 }
 
 type serializabilityManager struct {
-	tm tm.TransactionManager
-	dm dm.DataManager
+	TM tm.TransactionManager
+	DM dm.DataManager
 
 	ec cacher.Cacher // entry cache
 
@@ -39,10 +37,10 @@ type serializabilityManager struct {
 	lt locktable.LockTable
 }
 
-func newSerializabilityManager(tm0 tm.TransactionManager, dm dm.DataManager) *serializabilityManager {
+func NewSerializabilityManager(tm0 tm.TransactionManager, dm dm.DataManager) *serializabilityManager {
 	sm := &serializabilityManager{
-		tm: tm0,
-		dm: dm,
+		TM: tm0,
+		DM: dm,
 		tc: make(map[tm.XID]*transaction),
 		lt: locktable.NewLockTable(),
 	}
@@ -54,19 +52,9 @@ func newSerializabilityManager(tm0 tm.TransactionManager, dm dm.DataManager) *se
 	ec := cacher.NewCacher(options)
 	sm.ec = ec
 
+	sm.tc[tm.SUPER_XID] = newTransaction(tm.SUPER_XID, 0, nil)
+
 	return sm
-}
-
-func CreateDB(path string, mem int64) *serializabilityManager {
-	tm := tm.CreateXIDFile(path)
-	dm := dm.CreateDB(path, mem, tm)
-	return newSerializabilityManager(tm, dm)
-}
-
-func OpenDB(path string, mem int64) *serializabilityManager {
-	tm := tm.OpenXIDFile(path)
-	dm := dm.OpenDB(path, mem, tm)
-	return newSerializabilityManager(tm, dm)
 }
 
 func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, error) {
@@ -83,9 +71,7 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 		t.Err = ErrCannotSR
 		return false, t.Err
 	}
-	fmt.Println(xid, " waiting ", uuid)
 	<-ch
-	fmt.Println("Over")
 
 	handle, err := sm.ec.Get(uuid)
 	if err == ErrNilEntry {
@@ -98,7 +84,7 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 	defer e.Release()
 
 	// 获得锁后, 还得进行版本跳跃检查
-	skip := IsVersionSkip(sm.tm, t, e)
+	skip := IsVersionSkip(sm.TM, t, e)
 	if skip == true {
 		t.Err = ErrCannotSR
 		return false, t.Err
@@ -119,7 +105,7 @@ func (sm *serializabilityManager) Insert(xid tm.XID, data []byte) (utils.UUID, e
 	}
 
 	raw := WrapEntryRaw(xid, data)
-	return sm.dm.Insert(xid, raw)
+	return sm.DM.Insert(xid, raw)
 }
 
 func (sm *serializabilityManager) Read(xid tm.XID, uuid utils.UUID) ([]byte, bool, error) {
@@ -141,7 +127,7 @@ func (sm *serializabilityManager) Read(xid tm.XID, uuid utils.UUID) ([]byte, boo
 	e := handle.(*entry)
 	defer e.Release()
 
-	if IsVisible(sm.tm, t, e) {
+	if IsVisible(sm.TM, t, e) {
 		return e.Data(), true, nil
 	} else {
 		return nil, false, nil
@@ -152,7 +138,7 @@ func (sm *serializabilityManager) Begin(level int) tm.XID {
 	sm.lock.Lock()
 	defer sm.lock.Unlock()
 
-	xid := sm.tm.Begin()
+	xid := sm.TM.Begin()
 	t := newTransaction(xid, level, sm.tc)
 	sm.tc[xid] = t
 	return xid
@@ -172,7 +158,7 @@ func (sm *serializabilityManager) Commit(xid tm.XID) error {
 	sm.lock.Unlock()
 
 	sm.lt.Remove(utils.UUID(xid))
-	sm.tm.Commit(xid)
+	sm.TM.Commit(xid)
 	return nil
 }
 
@@ -182,14 +168,7 @@ func (sm *serializabilityManager) Abort(xid tm.XID) {
 	sm.lock.Unlock()
 
 	sm.lt.Remove(utils.UUID(xid))
-	sm.tm.Abort(xid)
-}
-
-func (sm *serializabilityManager) Close() {
-	// TODO: 如果还有事务为结束?
-	sm.ec.Close()
-	sm.tm.Close()
-	sm.dm.Close()
+	sm.TM.Abort(xid)
 }
 
 func (sm *serializabilityManager) ReleaseEntry(e *entry) {

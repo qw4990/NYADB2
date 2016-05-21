@@ -10,7 +10,7 @@ import (
 )
 
 func TestMultiThread(t *testing.T) {
-	tmger := tm.CreateXIDFile("/tmp/tranmger_test.xid")
+	tmger := tm.Create("/tmp/tranmger_test.xid")
 
 	transCnt := 0
 	transMap := make(map[tm.XID]byte)

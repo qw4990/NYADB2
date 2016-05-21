@@ -91,8 +91,8 @@ func worker(dm0, dm1 dm.DataManager, noTasks int, insertRation int) {
 }
 
 func TestDMSingle(t *testing.T) {
-	tm0 := tm.CreateMockXIDFile("abc")
-	dm0 := dm.CreateDB("/tmp/TESTDMSingle", pcacher.PAGE_SIZE*10, tm0)
+	tm0 := tm.CreateMock("abc")
+	dm0 := dm.Create("/tmp/TESTDMSingle", pcacher.PAGE_SIZE*10, tm0)
 	mdm := dm.CreateMockDB("ttt", 0, tm0)
 
 	noTasks := 10000
@@ -103,8 +103,8 @@ func TestDMSingle(t *testing.T) {
 }
 
 func TestDMMulti(t *testing.T) {
-	tm0 := tm.CreateMockXIDFile("abc")
-	dm0 := dm.CreateDB("/tmp/TestDMMulti", pcacher.PAGE_SIZE*10, tm0)
+	tm0 := tm.CreateMock("abc")
+	dm0 := dm.Create("/tmp/TestDMMulti", pcacher.PAGE_SIZE*10, tm0)
 	mdm := dm.CreateMockDB("ttt", 0, tm0)
 
 	noTasks := 1000
@@ -118,8 +118,8 @@ func TestDMMulti(t *testing.T) {
 }
 
 func TestRecoverySimple(t *testing.T) {
-	tm0 := tm.CreateXIDFile("/tmp/TestRecoverySimple")
-	dm0 := dm.CreateDB("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*30, tm0)
+	tm0 := tm.Create("/tmp/TestRecoverySimple")
+	dm0 := dm.Create("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*30, tm0)
 	mdm := dm.CreateMockDB("ttt", 0, tm0)
 	dm0.Close()
 
@@ -128,7 +128,7 @@ func TestRecoverySimple(t *testing.T) {
 	noWorkers := 50
 	for i := 0; i < 8; i++ {
 		// 另上一次关闭时, 不调用dm0.Close(), 立即重新打开DB, 触发Recovery.
-		dm0 = dm.OpenDB("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*10, tm0)
+		dm0 = dm.Open("/tmp/TestRecoverySimple", pcacher.PAGE_SIZE*10, tm0)
 		wg.Add(noWorkers)
 		for k := 0; k < noWorkers; k++ {
 			go worker(dm0, mdm, 2000, 50)

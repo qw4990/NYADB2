@@ -3,7 +3,7 @@ package logger
 import "testing"
 
 func TestLogger(t *testing.T) {
-	lg := CreateLogFile("/tmp/logger_test.log")
+	lg := Create("/tmp/logger_test.log")
 	lg.Log([]byte("aaa"))
 	lg.Log([]byte("bbb"))
 	lg.Log([]byte("ccc"))
@@ -11,7 +11,7 @@ func TestLogger(t *testing.T) {
 	lg.Log([]byte("eee"))
 	lg.Close()
 
-	lg = OpenLogFile("/tmp/logger_test.log")
+	lg = Open("/tmp/logger_test.log")
 	lg.Rewind()
 
 	log, ok := lg.Next()

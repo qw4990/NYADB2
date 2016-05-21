@@ -36,7 +36,7 @@ func newEntry(sm *serializabilityManager, di dm.Dataitem, uuid utils.UUID) *entr
 }
 
 func LoadEntry(sm *serializabilityManager, uuid utils.UUID) (*entry, bool, error) {
-	di, ok, err := sm.dm.Read(uuid)
+	di, ok, err := sm.DM.Read(uuid)
 	if err != nil {
 		return nil, false, err
 	}
@@ -82,6 +82,7 @@ func (e *entry) XMIN() tm.XID {
 func (e *entry) XMAX() tm.XID {
 	e.dataitem.RLock()
 	defer e.dataitem.RUnlock()
+
 	return tm.ParseXID(e.dataitem.Data()[_ENTRY_OF_XMAX:])
 }
 

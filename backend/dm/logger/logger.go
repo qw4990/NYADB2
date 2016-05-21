@@ -43,6 +43,8 @@ const (
 	_OF_SIZE     = 0
 	_OF_CHECKSUM = _OF_SIZE + 4
 	_OF_DATA     = _OF_CHECKSUM + 4
+
+	SUFFIX_LOG = ".log"
 )
 
 type logger struct {
@@ -54,8 +56,8 @@ type logger struct {
 	xChecksum uint32
 }
 
-func OpenLogFile(path string) *logger {
-	file, err := os.OpenFile(path+utils.SUFFIX_LOG, os.O_RDWR, 0666)
+func Open(path string) *logger {
+	file, err := os.OpenFile(path+SUFFIX_LOG, os.O_RDWR, 0600)
 	if err != nil {
 		panic(err)
 	}
@@ -71,8 +73,8 @@ func OpenLogFile(path string) *logger {
 	return lg
 }
 
-func CreateLogFile(path string) *logger {
-	file, err := os.OpenFile(path+utils.SUFFIX_LOG, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+func Create(path string) *logger {
+	file, err := os.OpenFile(path+SUFFIX_LOG, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
 	}

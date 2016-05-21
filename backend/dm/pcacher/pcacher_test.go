@@ -12,7 +12,7 @@ import (
 )
 
 func TestPcacherSimple(t *testing.T) {
-	pc := pcacher.CreateCacheFile("/tmp/pcacher_simple_test.db", pcacher.PAGE_SIZE*50)
+	pc := pcacher.Create("/tmp/pcacher_simple_test.db", pcacher.PAGE_SIZE*50)
 	for i := 0; i < 100; i++ {
 		tmp := make([]byte, pcacher.PAGE_SIZE)
 		pgno := pc.NewPage(tmp)
@@ -26,7 +26,7 @@ func TestPcacherSimple(t *testing.T) {
 	}
 	pc.Close()
 
-	pc = pcacher.OpenCacheFile("/tmp/pcacher_simple_test.db", pcacher.PAGE_SIZE*50)
+	pc = pcacher.Open("/tmp/pcacher_simple_test.db", pcacher.PAGE_SIZE*50)
 
 	for i := 1; i <= 100; i++ {
 		pg, err := pc.GetPage(pcacher.Pgno(i))
@@ -42,7 +42,7 @@ func TestPcacherSimple(t *testing.T) {
 }
 
 func TestPcacherMultiSimple(t *testing.T) {
-	pc := pcacher.CreateCacheFile("/tmp/pcacher_multisimple_test.db", pcacher.PAGE_SIZE*50)
+	pc := pcacher.Create("/tmp/pcacher_multisimple_test.db", pcacher.PAGE_SIZE*50)
 
 	var noPages uint32
 	wg := sync.WaitGroup{}
@@ -93,8 +93,8 @@ func TestPcacherMultiSimple(t *testing.T) {
 }
 
 func TestPcacherMulti(t *testing.T) {
-	pc := pcacher.CreateCacheFile("/tmp/pcacher_multi_test.db", pcacher.PAGE_SIZE*10)
-	mpc := pcacher.NewMockPcacher()
+	pc := pcacher.Create("/tmp/pcacher_multi_test.db", pcacher.PAGE_SIZE*10)
+	mpc := pcacher.NewMock()
 	lockNew := sync.Mutex{}
 
 	var noPages uint32

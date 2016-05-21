@@ -15,7 +15,7 @@ import (
 )
 
 type BPlusTree interface {
-	Insert(uuid, key utils.UUID) error
+	Insert(key, uuid utils.UUID) error
 	Search(key utils.UUID) ([]utils.UUID, error)
 	SearchRange(leftKey, rightKey utils.UUID) ([]utils.UUID, error)
 }
@@ -34,11 +34,11 @@ type bPlusTree struct {
 	bootDataitem dm.Dataitem
 	bootLock     sync.Mutex
 
-	dm dm.DataManager
+	DM dm.DataManager
 }
 
 // CreateBPlusTree 创建一棵B+树, 并返回其bootUUID.
-func CreateBPlusTree(dm dm.DataManager) (utils.UUID, error) {
+func Create(dm dm.DataManager) (utils.UUID, error) {
 	rawRoot := newNilRootRaw()
 	rootUUID, err := dm.Insert(tm.SUPER_XID, rawRoot)
 	if err != nil {
@@ -53,7 +53,7 @@ func CreateBPlusTree(dm dm.DataManager) (utils.UUID, error) {
 }
 
 // LoadBPlusTree 通过BootUUID读取一课B+树, 并返回它.
-func LoadBPlusTree(bootUUID utils.UUID, dm dm.DataManager) (BPlusTree, error) {
+func Load(bootUUID utils.UUID, dm dm.DataManager) (BPlusTree, error) {
 	bootDataitem, ok, err := dm.Read(bootUUID)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func LoadBPlusTree(bootUUID utils.UUID, dm dm.DataManager) (BPlusTree, error) {
 
 	return &bPlusTree{
 		bootUUID:     bootUUID,
-		dm:           dm,
+		DM:           dm,
 		bootDataitem: bootDataitem,
 	}, nil
 }
@@ -80,7 +80,7 @@ func (bt *bPlusTree) updateRootUUID(left, right, rightKey utils.UUID) error {
 	defer bt.bootLock.Unlock()
 
 	rootRaw := newRootRaw(left, right, rightKey)
-	newRootUUID, err := bt.dm.Insert(tm.SUPER_XID, rootRaw)
+	newRootUUID, err := bt.DM.Insert(tm.SUPER_XID, rootRaw)
 	if err != nil {
 		return err
 	}
@@ -88,13 +88,12 @@ func (bt *bPlusTree) updateRootUUID(left, right, rightKey utils.UUID) error {
 	bt.bootDataitem.Before()
 	copy(bt.bootDataitem.Data(), utils.UUIDToRaw(newRootUUID))
 	bt.bootDataitem.After(tm.SUPER_XID)
-
 	return nil
 }
 
 // searchLeaf 根据key, 在nodeUUID代表节点的子树中搜索, 直到找到其对应的叶节点地址.
 func (bt *bPlusTree) searchLeaf(nodeUUID, key utils.UUID) (utils.UUID, error) {
-	node, err := loadNode(bt.dm, nodeUUID)
+	node, err := loadNode(bt, nodeUUID)
 	if err != nil {
 		return utils.NilUUID, err
 	}
@@ -116,7 +115,7 @@ func (bt *bPlusTree) searchLeaf(nodeUUID, key utils.UUID) (utils.UUID, error) {
 // serachNext 从nodeUUID对应节点开始, 不断的向右试探兄弟节点, 找到对应key的next uuid
 func (bt *bPlusTree) searchNext(nodeUUID, key utils.UUID) (utils.UUID, error) {
 	for {
-		node, err := loadNode(bt.dm, nodeUUID)
+		node, err := loadNode(bt, nodeUUID)
 		if err != nil {
 			return utils.NilUUID, err
 		}
@@ -143,7 +142,7 @@ func (bt *bPlusTree) SearchRange(leftKey, rightKey utils.UUID) ([]utils.UUID, er
 
 	var uuids []utils.UUID
 	for { // 不断的从leaf向sibling迭代, 将所有满足的uuid都加入
-		leaf, err := loadNode(bt.dm, leafUUID)
+		leaf, err := loadNode(bt, leafUUID)
 		if err != nil {
 			return nil, err
 		}
@@ -162,7 +161,7 @@ func (bt *bPlusTree) SearchRange(leftKey, rightKey utils.UUID) ([]utils.UUID, er
 }
 
 // Insert 向B+树种插入(uuid, key)的键值对
-func (bt *bPlusTree) Insert(uuid, key utils.UUID) error {
+func (bt *bPlusTree) Insert(key, uuid utils.UUID) error {
 	rootUUID := bt.rootUUID()
 
 	newNode, newKey, err := bt.insert(rootUUID, uuid, key)
@@ -192,7 +191,7 @@ func (bt *bPlusTree) Insert(uuid, key utils.UUID) error {
 // insert 将(uuid, key)插入到B+树中, 如果有分裂, 则将分裂产生的新节点也返回.
 func (bt *bPlusTree) insert(nodeUUID, uuid, key utils.UUID) (newNodeUUID, newNodeKey utils.UUID, err error) {
 	var node *node
-	node, err = loadNode(bt.dm, nodeUUID)
+	node, err = loadNode(bt, nodeUUID)
 	if err != nil {
 		return
 	}
@@ -226,7 +225,7 @@ func (bt *bPlusTree) insert(nodeUUID, uuid, key utils.UUID) (newNodeUUID, newNod
 // insertAndSplit 函数从node开始, 不断的向右试探兄弟节点, 直到找到一个节点, 能够插入进对应的值
 func (bt *bPlusTree) insertAndSplit(nodeUUID, uuid, key utils.UUID) (utils.UUID, utils.UUID, error) {
 	for {
-		node, err := loadNode(bt.dm, nodeUUID)
+		node, err := loadNode(bt, nodeUUID)
 		if err != nil {
 			return utils.NilUUID, utils.NilUUID, err
 		}

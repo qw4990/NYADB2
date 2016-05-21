@@ -18,7 +18,7 @@ type mockPcacher struct {
 	noPages uint32
 }
 
-func NewMockPcacher() *mockPcacher {
+func NewMock() *mockPcacher {
 	return &mockPcacher{
 		cache: make(map[Pgno]*mockPage),
 	}

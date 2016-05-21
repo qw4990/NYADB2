@@ -5,9 +5,11 @@ import (
 	"math/rand"
 	"os"
 	"runtime"
+	"time"
 )
 
 func RandBytes(length int) []byte {
+	rand.Seed(int64(time.Now().Nanosecond()))
 	buf := make([]byte, length)
 	for i := 0; i < length; i++ {
 		tmp := rand.Int() % 62
@@ -36,6 +38,11 @@ func Fatal(args ...interface{}) {
 
 func Info(args ...interface{}) {
 	fmt.Print("[Info]: ")
+	fmt.Println(args...)
+}
+
+func Warn(args ...interface{}) {
+	fmt.Print("[Warn]: ")
 	fmt.Println(args...)
 }
 

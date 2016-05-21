@@ -13,11 +13,11 @@ import (
 
 func TestTreeSingle(t *testing.T) {
 	// dm := dm.CreateMockDB("", 0, nil)
-	tm := tm.CreateMockXIDFile("/tmp/TestTreeSingle")
-	dm := dm.CreateDB("/tmp/TestTreeSingle", pcacher.PAGE_SIZE*10, tm)
+	tm := tm.CreateMock("/tmp/TestTreeSingle")
+	dm := dm.Create("/tmp/TestTreeSingle", pcacher.PAGE_SIZE*10, tm)
 
-	root, _ := CreateBPlusTree(dm)
-	tree, _ := LoadBPlusTree(root, dm)
+	root, _ := Create(dm)
+	tree, _ := Load(root, dm)
 
 	lim := 10000
 	for i := lim - 1; i >= 0; i-- {
@@ -36,10 +36,10 @@ func TestTreeSingle(t *testing.T) {
 }
 
 func TestTreeMultiInsert(t *testing.T) {
-	tm := tm.CreateMockXIDFile("/tmp/TestTreeMultiInsert")
-	dm := dm.CreateDB("/tmp/TestTreeMultiInsert", pcacher.PAGE_SIZE*80, tm)
-	root, _ := CreateBPlusTree(dm)
-	tree, _ := LoadBPlusTree(root, dm)
+	tm := tm.CreateMock("/tmp/TestTreeMultiInsert")
+	dm := dm.Create("/tmp/TestTreeMultiInsert", pcacher.PAGE_SIZE*80, tm)
+	root, _ := Create(dm)
+	tree, _ := Load(root, dm)
 
 	aMap := make(map[utils.UUID]int)
 	aLock := sync.Mutex{}
