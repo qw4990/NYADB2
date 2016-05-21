@@ -14,3 +14,10 @@ NYADB2是一个Go编写的数据库.
 NYADB主页: http://www.codeyj.com, http://www.nyadb.org
 
 NYADB的模型: https://qw4990.gitbooks.io/nyadb/content/
+
+##关于NYADB和NYADB2
+NYADB和NYADB2的模型是一样的, NYADB2是在同样模型的基础上, 对NYADB进行的重构, 代码更加简洁.
+
+NYADB作为我实验性的作品, 已经被kill掉了.
+
+所以, 上面的NYADB模型文档, 和NYADB2的代码, 是不冲突的.
