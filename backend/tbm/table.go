@@ -135,51 +135,89 @@ func (t *table) Print() string {
 	return str
 }
 
-func (t *table) Read(xid tm.XID, read *statement.Read) (string, error) {
-	var l0, r0, l1, r1 utils.UUID
-	single := false
-	var err error
-	var fd *field
+func (t *table) Delete(xid tm.XID, delete *statement.Delete) (int, error) {
+	uuids, err := t.parseWhere(delete.Where)
+	if err != nil {
+		return 0, err
+	}
 
-	if read.Where == nil {
-		for _, f := range t.fields {
-			if f.IsIndexed() {
-				fd = f
-				break
-			}
-		}
-		l0, r0 = 0, utils.INF
-		single = true
-	} else if read.Where != nil {
-		for _, f := range t.fields {
-			if f.FName == read.Where.SingleExp1.Field {
-				if f.IsIndexed() == false {
-					return "", ErrFieldHasNoField
-				}
-				fd = f
-				break
-			}
-		}
-		if fd == nil {
-			return "", ErrNoThatField
-		}
-
-		l0, r0, l1, r1, single, err = t.calWhere(fd, read.Where)
+	count := 0
+	for _, uuid := range uuids {
+		ok, err := t.TBM.SM.Delete(xid, uuid)
 		if err != nil {
-			return "", err
+			return 0, err
+		}
+		if ok {
+			count++
 		}
 	}
 
-	uuids, err := fd.Search(l0, r0)
+	return count, nil
+}
+
+func (t *table) Update(xid tm.XID, update *statement.Update) (int, error) {
+	uuids, err := t.parseWhere(update.Where)
+	if err != nil {
+		return 0, err
+	}
+
+	var fd *field
+	for _, f := range t.fields {
+		if f.FName == update.FieldName {
+			fd = f
+			break
+		}
+	}
+	if fd == nil {
+		return 0, ErrNoThatField
+	}
+	v, err := fd.StrToValue(update.Value)
+	if err != nil {
+		return 0, err
+	}
+
+	count := 0
+	for _, uuid := range uuids {
+		raw, ok, err := t.TBM.SM.Read(xid, uuid)
+		if err != nil {
+			return 0, err
+		}
+		if ok == false {
+			continue
+		}
+
+		_, err = t.TBM.SM.Delete(xid, uuid) // 删除原来的entry
+		if err != nil {
+			return 0, err
+		}
+
+		e := t.parseEntry(raw) // 读取并解析entry
+		e[fd.FName] = v        // 更新entry
+		raw = t.entryToRaw(e)  // 将新entry存储进DB
+		uuid, err = t.TBM.SM.Insert(xid, raw)
+		if err != nil {
+			return 0, err
+		}
+
+		count++
+
+		for _, f := range t.fields { // 更新对应的索引
+			if f.IsIndexed() {
+				err := f.Insert(e[f.FName], uuid)
+				if err != nil {
+					return 0, err
+				}
+			}
+		}
+	}
+
+	return count, nil
+}
+
+func (t *table) Read(xid tm.XID, read *statement.Read) (string, error) {
+	uuids, err := t.parseWhere(read.Where)
 	if err != nil {
 		return "", err
-	}
-	if single == false {
-		tmp, err := fd.Search(l1, r1)
-		if err != nil {
-			return "", err
-		}
-		uuids = append(uuids, tmp...)
 	}
 
 	result := ""
@@ -196,6 +234,57 @@ func (t *table) Read(xid tm.XID, read *statement.Read) (string, error) {
 	}
 
 	return result, nil
+}
+
+// parseWhere 对where语句进行解析, 返回field, 该where对应的uuid
+func (t *table) parseWhere(where *statement.Where) ([]utils.UUID, error) {
+	var l0, r0, l1, r1 utils.UUID
+	single := false
+	var err error
+	var fd *field
+
+	if where == nil {
+		for _, f := range t.fields {
+			if f.IsIndexed() {
+				fd = f
+				break
+			}
+		}
+		l0, r0 = 0, utils.INF
+		single = true
+	} else if where != nil {
+		for _, f := range t.fields {
+			if f.FName == where.SingleExp1.Field {
+				if f.IsIndexed() == false {
+					return nil, ErrFieldHasNoField
+				}
+				fd = f
+				break
+			}
+		}
+		if fd == nil {
+			return nil, ErrNoThatField
+		}
+
+		l0, r0, l1, r1, single, err = t.calWhere(fd, where)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	uuids, err := fd.Search(l0, r0)
+	if err != nil {
+		return nil, err
+	}
+	if single == false {
+		tmp, err := fd.Search(l1, r1)
+		if err != nil {
+			return nil, err
+		}
+		uuids = append(uuids, tmp...)
+	}
+
+	return uuids, nil
 }
 
 func (t *table) calWhere(fd *field, where *statement.Where) (l0, r0, l1, r1 utils.UUID, single bool, err error) {

@@ -26,8 +26,8 @@ type TableManager interface {
 
 	Insert(xid tm.XID, insert *statement.Insert) ([]byte, error)
 	Read(xid tm.XID, read *statement.Read) ([]byte, error)
-	// Update(xid tm.XID, update *statement.Update) ([]byte, error)
-	// Delete(xid tm.XID, delete *statement.Delete) ([]byte, error)
+	Update(xid tm.XID, update *statement.Update) ([]byte, error)
+	Delete(xid tm.XID, delete *statement.Delete) ([]byte, error)
 }
 
 type tableManager struct {
@@ -98,6 +98,36 @@ func (tbm *tableManager) Read(xid tm.XID, read *statement.Read) ([]byte, error) 
 		return nil, err
 	}
 	return []byte(result), nil
+}
+
+func (tbm *tableManager) Update(xid tm.XID, update *statement.Update) ([]byte, error) {
+	tbm.lock.Lock()
+	tb, ok := tbm.tc[update.TableName]
+	tbm.lock.Unlock()
+	if ok == false {
+		return nil, ErrNoThatTable
+	}
+
+	count, err := tb.Update(xid, update)
+	if err != nil {
+		return nil, err
+	}
+	return []byte("Update " + utils.Int32ToStr(int32(count))), nil
+}
+
+func (tbm *tableManager) Delete(xid tm.XID, delete *statement.Delete) ([]byte, error) {
+	tbm.lock.Lock()
+	tb, ok := tbm.tc[delete.TableName]
+	tbm.lock.Unlock()
+	if ok == false {
+		return nil, ErrNoThatTable
+	}
+
+	count, err := tb.Delete(xid, delete)
+	if err != nil {
+		return nil, err
+	}
+	return []byte("Delete " + utils.Int32ToStr(int32(count))), nil
 }
 
 func (tbm *tableManager) Insert(xid tm.XID, insert *statement.Insert) ([]byte, error) {

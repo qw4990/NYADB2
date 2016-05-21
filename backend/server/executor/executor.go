@@ -96,13 +96,11 @@ func (e *executor) execute2(stat interface{}) ([]byte, error) {
 		result, err = e.tbm.Read(e.xid, st)
 	case *statement.Insert:
 		result, err = e.tbm.Insert(e.xid, st)
-	default:
-		return e.execute3(stat)
+	case *statement.Delete:
+		result, err = e.tbm.Delete(e.xid, st)
+	case *statement.Update:
+		result, err = e.tbm.Update(e.xid, st)
 	}
 
 	return result, err
-}
-
-func (e *executor) execute3(stat interface{}) ([]byte, error) {
-	return nil, nil
 }

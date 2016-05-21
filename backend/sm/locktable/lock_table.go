@@ -124,7 +124,6 @@ func (lt *lockTable) selectNewXID(uid utils.UUID) {
 		e := l.Front()
 		v := l.Remove(e)
 		xid := v.(utils.UUID)
-		fmt.Println("select xid ", xid)
 		if _, ok := lt.waitCh[xid]; ok == false { // 有可能该事务已经被撤销
 			continue
 		} else {
