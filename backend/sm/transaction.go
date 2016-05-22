@@ -1,3 +1,6 @@
+/*
+	transaction.go 实现了sm内部的transaction结构, 该结构内保存了sm中事务需要的必要的信息.
+*/
 package sm
 
 import "nyadb2/backend/tm"

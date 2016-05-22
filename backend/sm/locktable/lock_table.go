@@ -1,3 +1,6 @@
+/*
+	锁表维护了一个有向图. 每次添加边的时候, 就会进行死锁检测.
+*/
 package locktable
 
 import (

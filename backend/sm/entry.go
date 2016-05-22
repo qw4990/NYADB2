@@ -1,6 +1,9 @@
 /*
 	Entry.go 维护了SM中记录的结构.
 	虽然提供了多版本, 但是由于SM并没有提供Update操作, 所以对于每条entry, 有且只有一个版本.
+
+	entry的二进制结构:
+	[XMIN] [XMAX] [Data]
 */
 package sm
 
@@ -16,10 +19,6 @@ const (
 	_ENTRY_DATA    = _ENTRY_OF_XMAX + tm.LEN_XID
 )
 
-/*
-	entry的二进制结构:
-	[XMIN] [XMAX] [Data]
-*/
 type entry struct {
 	selfUUID utils.UUID
 	dataitem dm.Dataitem

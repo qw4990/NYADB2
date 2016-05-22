@@ -1,3 +1,8 @@
+/*
+	serializability_manager.go 保证了调度的可串行化, 同时实现了MVCC.
+
+	当事务发生ErrCannotSR错误时, SM会对该事务进行自动回滚.
+*/
 package sm
 
 import (

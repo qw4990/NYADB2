@@ -72,6 +72,7 @@ func (t *table) parseSelf(raw []byte) {
 	}
 }
 
+// CreateTable 创建一张表, 并返回其指针.
 func CreateTable(tbm *tableManager, next utils.UUID, xid tm.XID, create *statement.Create) (*table, error) {
 	tb := &table{
 		TBM:  tbm,
@@ -236,7 +237,7 @@ func (t *table) Read(xid tm.XID, read *statement.Read) (string, error) {
 	return result, nil
 }
 
-// parseWhere 对where语句进行解析, 返回field, 该where对应的uuid
+// parseWhere 对where语句进行解析, 返回field, 该where对应区间内的uuid
 func (t *table) parseWhere(where *statement.Where) ([]utils.UUID, error) {
 	var l0, r0, l1, r1 utils.UUID
 	single := false
@@ -287,6 +288,8 @@ func (t *table) parseWhere(where *statement.Where) ([]utils.UUID, error) {
 	return uuids, nil
 }
 
+// calWhere 计算该where语句所表示的key的区间.
+// 由于where或许有or, 所以区间可能为2个.
 func (t *table) calWhere(fd *field, where *statement.Where) (l0, r0, l1, r1 utils.UUID, single bool, err error) {
 	if where.LogicOp == "" { // single
 		single = true

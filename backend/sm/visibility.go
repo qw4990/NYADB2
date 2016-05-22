@@ -1,3 +1,7 @@
+/*
+	visibility.go 实现了sm的可见性逻辑.
+	这部分可见性逻辑借鉴了Postgresql, 感谢开源:)
+*/
 package sm
 
 import "nyadb2/backend/tm"

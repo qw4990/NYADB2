@@ -1,12 +1,3 @@
-package dm
-
-import (
-	"nyadb2/backend/dm/pcacher"
-	"nyadb2/backend/tm"
-	"nyadb2/backend/utils"
-	"sync"
-)
-
 /*
    Dataitem 为DataEngine为上层模块提供的数据抽象
    上层模块需要根据地址， 向DataEngine请求对应的Dataitem
@@ -25,6 +16,15 @@ import (
 	数据项释放协议:
 		上层模块不用数据项时, 必须调用d.Release()来将其释放
 */
+package dm
+
+import (
+	"nyadb2/backend/dm/pcacher"
+	"nyadb2/backend/tm"
+	"nyadb2/backend/utils"
+	"sync"
+)
+
 type Dataitem interface {
 	Data() []byte     // Data 以共享形式返回该dataitem的数据内容
 	UUID() utils.UUID // Handle 返回该dataitem的handle

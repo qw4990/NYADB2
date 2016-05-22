@@ -1,3 +1,13 @@
+/*
+	field.go 管理具体的字段.
+
+	一个field的二进制格式为
+	[Field Name]   string
+	[Type Name]    string
+	[Index UUID]   UUID
+
+	如果该field没有索引, 那么[Index UUID]为NilUUID.
+*/
 package tbm
 
 import (
@@ -13,14 +23,6 @@ var (
 	ErrInvalidFieldValue = errors.New("Invalid field value.")
 )
 
-/*
-	一个field的二进制格式为
-	[Field Name]   string
-	[Type Name]    string
-	[Index UUID]   UUID
-
-	如果该field没有索引, 那么[Index UUID]为NilUUID.
-*/
 type field struct {
 	SelfUUID utils.UUID
 	tb       *table

@@ -1,5 +1,5 @@
 /*
-   recover.go 对数据库进行恢复, 恢复的具体策略见protocols/nyalog.go
+   recover.go 对数据库进行恢复, 恢复的具体策略见protocols/recovery.go
 */
 package dm
 

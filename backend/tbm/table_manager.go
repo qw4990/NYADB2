@@ -1,3 +1,16 @@
+/*
+	table_manager.go 实现了TBM.
+	TBM用于管理表结构, 已经为上层模块提供更加高级和抽象的接口.
+	TBM会依赖IM进行索引, 依赖SM进行表单数据查找.
+
+	TBM本身的模型如下:
+	[TBM] -> [Booter] -> [Table1] -> [Table2] -> [Table3] ...
+	TBM将它管理的所有的表, 以链表的结构组织起来.
+	并利用Booter, 存储了第一张表的UUID.
+
+	TBM目前没有实现表的可见性管理, 也没有实现Drop语句.
+	这样的目的是为了简洁代码.
+*/
 package tbm
 
 import (

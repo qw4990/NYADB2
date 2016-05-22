@@ -1,6 +1,7 @@
 /*
-   nyalog.go 描述了NYADB使用的日志协议, 该协议被使用于dm中, 用于保证NYADB的可恢复性.
+   recovery.go 描述了NYADB使用的日志协议, 该协议被使用于dm中, 用于保证NYADB的可恢复性.
    ***该协议需要上层模块提供一些保证.***
+
 
    dm实际上为上层模块提供了三种操作, Read, Insert, Update.
    Read不需要日志, 下面将重点描述Insert和Update日志, 以及怎么用它们来进行恢复.
