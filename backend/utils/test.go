@@ -8,6 +8,16 @@ import (
 	"time"
 )
 
+const (
+	LOG_LEVEL_INFO  = 0
+	LOG_LEVEL_WARN  = 3
+	LOG_LEVEL_FATAL = 5
+)
+
+var (
+	LOG_LEVEL = LOG_LEVEL_INFO
+)
+
 func RandBytes(length int) []byte {
 	rand.Seed(int64(time.Now().Nanosecond()))
 	buf := make([]byte, length)
@@ -26,6 +36,9 @@ func RandBytes(length int) []byte {
 }
 
 func Fatal(args ...interface{}) {
+	if LOG_LEVEL > LOG_LEVEL_FATAL {
+		return
+	}
 	fmt.Println(args...)
 	fmt.Println()
 	fmt.Println()
@@ -37,11 +50,17 @@ func Fatal(args ...interface{}) {
 }
 
 func Info(args ...interface{}) {
+	if LOG_LEVEL > LOG_LEVEL_INFO {
+		return
+	}
 	fmt.Print("[Info]: ")
 	fmt.Println(args...)
 }
 
 func Warn(args ...interface{}) {
+	if LOG_LEVEL > LOG_LEVEL_WARN {
+		return
+	}
 	fmt.Print("[Warn]: ")
 	fmt.Println(args...)
 }
