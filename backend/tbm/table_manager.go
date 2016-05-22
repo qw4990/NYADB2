@@ -18,9 +18,9 @@ import (
 	"nyadb2/backend/dm"
 	"nyadb2/backend/parser/statement"
 	"nyadb2/backend/sm"
-	"nyadb2/backend/tbm/booter"
 	"nyadb2/backend/tm"
 	"nyadb2/backend/utils"
+	"nyadb2/backend/utils/booter"
 	"sync"
 )
 

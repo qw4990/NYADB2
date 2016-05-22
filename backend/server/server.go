@@ -2,7 +2,6 @@ package server
 
 import (
 	"net"
-	"nyadb2/backend/server/executor"
 	"nyadb2/backend/tbm"
 	"nyadb2/backend/utils"
 	"nyadb2/transporter"
@@ -58,8 +57,8 @@ func (s *server) serve(conn net.Conn) {
 	defer packager.Close()
 	var pkg transporter.Package
 
-	var exe executor.Executor
-	exe = executor.NewExecutor(s.tbm)
+	var exe Executor
+	exe = NewExecutor(s.tbm)
 	defer exe.Close()
 
 	for {

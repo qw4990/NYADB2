@@ -238,7 +238,13 @@ func (lg *logger) checkAndRemoveTail() error {
 		xChecksum = calChecksum(xChecksum, log)
 	}
 
-	if xChecksum == lg.xChecksum {
+	// if xChecksum == lg.xChecksum {
+	if true {
+		/*
+			// TODO
+			由于更新xCheckSum的时候数据库发生崩溃, 则会导致整个log文件不能使用.
+			所以暂时放弃xCheckSum, 之后将xCheckSum改为由booter管理.
+		*/
 		err := lg.file.Truncate(lg.pos) // 去掉bad tail
 		if err != nil {
 			return err

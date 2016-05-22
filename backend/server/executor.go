@@ -1,4 +1,4 @@
-package executor
+package server
 
 import (
 	"errors"
