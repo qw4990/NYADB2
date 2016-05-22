@@ -16,6 +16,7 @@ var (
 
 type Executor interface {
 	Execute(sql []byte) ([]byte, error)
+	Close()
 }
 
 type executor struct {
@@ -26,6 +27,13 @@ type executor struct {
 func NewExecutor(tbm tbm.TableManager) *executor {
 	return &executor{
 		tbm: tbm,
+	}
+}
+
+func (e *executor) Close() {
+	if e.xid != 0 {
+		utils.Info("Abnormal Abort: ", e.xid)
+		e.tbm.Abort(e.xid)
 	}
 }
 

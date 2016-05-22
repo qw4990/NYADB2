@@ -83,6 +83,11 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 	e := handle.(*entry)
 	defer e.Release()
 
+	// 如果之前已经被它自身所删除, 则直接返回.
+	if e.XMAX() == xid {
+		return false, nil
+	}
+
 	// 获得锁后, 还得进行版本跳跃检查
 	skip := IsVersionSkip(sm.TM, t, e)
 	if skip == true {

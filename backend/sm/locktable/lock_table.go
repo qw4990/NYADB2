@@ -2,7 +2,6 @@ package locktable
 
 import (
 	"container/list"
-	"fmt"
 	"nyadb2/backend/utils"
 	"sync"
 )
@@ -112,10 +111,9 @@ func (lt *lockTable) hasDeadLock() bool {
 
 // selectNewXID 为uid从等待队列中, 选择下一个xid来占用它.
 func (lt *lockTable) selectNewXID(uid utils.UUID) {
-	fmt.Println("Select for ", uid)
+	delete(lt.u2x, uid) // 先将原来的事务删除
 	l := lt.wait[uid]
 	if l == nil {
-		fmt.Println("Select Nil")
 		return
 	}
 	utils.Assert(l.Len() > 0)
@@ -127,7 +125,6 @@ func (lt *lockTable) selectNewXID(uid utils.UUID) {
 		if _, ok := lt.waitCh[xid]; ok == false { // 有可能该事务已经被撤销
 			continue
 		} else {
-			fmt.Println("sec succ")
 			lt.u2x[uid] = xid      // 将该uid指向xid
 			ch := lt.waitCh[xid]   // 对xid进行回应
 			delete(lt.waitCh, xid) // 删除该xid的等待通道

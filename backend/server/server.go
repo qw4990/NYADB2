@@ -60,6 +60,7 @@ func (s *server) serve(conn net.Conn) {
 
 	var exe executor.Executor
 	exe = executor.NewExecutor(s.tbm)
+	defer exe.Close()
 
 	for {
 		pkg, netErr = packager.Receive()
