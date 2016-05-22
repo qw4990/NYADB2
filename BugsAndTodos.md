@@ -38,3 +38,6 @@ TODO: 扩展Where语法.
 
 ##日志自动归档和压缩
 TODO: 为日志文件增加自动归档和压缩功能.
+
+##增加Vacuum
+TODO: 增加Vacuum功能.

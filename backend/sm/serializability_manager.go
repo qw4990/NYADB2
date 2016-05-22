@@ -66,13 +66,9 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 		return false, t.Err
 	}
 
-	ok, ch := sm.lt.Add(utils.UUID(xid), uuid)
-	if ok == false {
-		t.Err = ErrCannotSR
-		return false, t.Err
-	}
-	<-ch
-
+	/*
+		先读取并判空, 再判断死锁.
+	*/
 	handle, err := sm.ec.Get(uuid)
 	if err == ErrNilEntry {
 		return false, nil
@@ -83,6 +79,19 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 	e := handle.(*entry)
 	defer e.Release()
 
+	if IsVisible(sm.TM, t, e) == false { // 如果本身对其不可见, 则直接返回
+		return false, nil
+	}
+
+	ok, ch := sm.lt.Add(utils.UUID(xid), uuid)
+	if ok == false {
+		t.Err = ErrCannotSR
+		sm.abort(xid, true) // 自动撤销
+		t.AutoAbortted = true
+		return false, t.Err
+	}
+	<-ch
+
 	// 如果之前已经被它自身所删除, 则直接返回.
 	if e.XMAX() == xid {
 		return false, nil
@@ -92,6 +101,8 @@ func (sm *serializabilityManager) Delete(xid tm.XID, uuid utils.UUID) (bool, err
 	skip := IsVersionSkip(sm.TM, t, e)
 	if skip == true {
 		t.Err = ErrCannotSR
+		sm.abort(xid, true) // 自动撤销
+		t.AutoAbortted = true
 		return false, t.Err
 	}
 
@@ -167,13 +178,24 @@ func (sm *serializabilityManager) Commit(xid tm.XID) error {
 	return nil
 }
 
-func (sm *serializabilityManager) Abort(xid tm.XID) {
+func (sm *serializabilityManager) abort(xid tm.XID, auto bool) {
 	sm.lock.Lock()
-	delete(sm.tc, xid)
+	t := sm.tc[xid]
+	if auto == false { // 如果自动撤销, 不完全注销该事务, 只是潜在的将其回滚; 如果是手动, 则彻底注销.
+		delete(sm.tc, xid)
+	}
 	sm.lock.Unlock()
+
+	if t.AutoAbortted == true { // 已经被自动撤销过了
+		return
+	}
 
 	sm.lt.Remove(utils.UUID(xid))
 	sm.TM.Abort(xid)
+}
+
+func (sm *serializabilityManager) Abort(xid tm.XID) {
+	sm.abort(xid, false) // 手动撤销
 }
 
 func (sm *serializabilityManager) ReleaseEntry(e *entry) {
