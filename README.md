@@ -19,7 +19,7 @@ NYADB文法: https://qw4990.gitbooks.io/nyadb/content/chapter5.html
 
 NYADB主页: http://www.codeyj.com, http://www.nyadb.org
 
-NYADB的模型: https://qw4990.gitbooks.io/nyadb/content/
+<font color="red">NYADB的模型</font>: https://qw4990.gitbooks.io/nyadb/content/
 
 NYADB2一些实现细节: 待续
 
