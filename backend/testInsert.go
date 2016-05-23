@@ -1,16 +1,17 @@
 package main
 
 import (
+	"sync"
+	"time"
+	"fmt"
+	"runtime"
+
 	"nyadb2/backend/dm"
 	"nyadb2/backend/server"
 	"nyadb2/backend/sm"
 	"nyadb2/backend/tbm"
 	"nyadb2/backend/tm"
 	"nyadb2/backend/utils"
-
-	"sync"
-	"time"
-	"fmt"
 )
 
 const (
@@ -22,6 +23,11 @@ var (
 	_CREATE_TABLE []byte = []byte("create table test_table id int32 (index id)")
 	_INSERT       []byte = []byte("insert into test_table values 2333")
 )
+
+func init() {
+	fmt.Println("NUMCPUS: ", runtime.NumCPU())
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 
 func testCreate() server.Executor {
 	tm := tm.Create(_DEFAULT_PATH)
@@ -116,6 +122,11 @@ func TestInsert10000000With5() {
 	testMultiInsert(10000000, 5)
 }
 
+func TestInsert10000000With8() {
+	fmt.Print("TestInsert10000000With5: ")
+	testMultiInsert(10000000, 8)
+}
+
 func TestInsert10000000With10() {
 	fmt.Print("TestInsert10000000With10: ")
 	testMultiInsert(10000000, 10)
@@ -146,6 +157,7 @@ func main() {
 	TestInsert10000000With3()
 	TestInsert10000000With4()
 	TestInsert10000000With5()
+	TestInsert10000000With8()
 	TestInsert10000000With10()
 	TestInsert10000000With20()
 	TestInsert10000000With30()

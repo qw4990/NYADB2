@@ -53,7 +53,7 @@ func Parse(statement []byte) (interface{}, error) {
 
 	next, err := tokener.Peek()
 	if err == nil && next != "" {
-		errStat := tokener.errStat()
+		errStat := tokener.ErrStat()
 		staterr = errors.New("Invalid Stat: " + string(errStat))
 	}
 
@@ -489,8 +489,8 @@ func isLogicOp(op string) bool {
 }
 
 func isType(tp string) bool {
-	return tp == "int32" || tp == "int64" ||
-		tp == "float" || tp == "string"
+	return tp == "uint32" || tp == "uint64" ||
+		 tp == "string"
 }
 
 func isName(name string) bool {

@@ -43,11 +43,11 @@ func Int64ToStr(num int64) string {
 	return strconv.FormatInt(num, 10)
 }
 
-func StrToInt32(str string) (int32, error) {
-	i64, err := strconv.ParseInt(str, 10, 32)
-	return int32(i64), err
+func StrToUint32(str string) (uint32, error) {
+	i64, err := strconv.ParseUint(str, 10, 32)
+	return uint32(i64), err
 }
 
-func Int32ToStr(num int32) string {
-	return strconv.FormatInt(int64(num), 10)
+func Uint32ToStr(num uint32) string {
+	return strconv.FormatUint(uint64(num), 10)
 }

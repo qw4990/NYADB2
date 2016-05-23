@@ -125,7 +125,7 @@ func (tbm *tableManager) Update(xid tm.XID, update *statement.Update) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	return []byte("Update " + utils.Int32ToStr(int32(count))), nil
+	return []byte("Update " + utils.Uint32ToStr(uint32(count))), nil
 }
 
 func (tbm *tableManager) Delete(xid tm.XID, delete *statement.Delete) ([]byte, error) {
@@ -140,7 +140,7 @@ func (tbm *tableManager) Delete(xid tm.XID, delete *statement.Delete) ([]byte, e
 	if err != nil {
 		return nil, err
 	}
-	return []byte("Delete " + utils.Int32ToStr(int32(count))), nil
+	return []byte("Delete " + utils.Uint32ToStr(uint32(count))), nil
 }
 
 func (tbm *tableManager) Insert(xid tm.XID, insert *statement.Insert) ([]byte, error) {

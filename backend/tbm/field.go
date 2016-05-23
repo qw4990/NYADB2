@@ -115,7 +115,7 @@ func (f *field) persistSelf(xid tm.XID) error {
 }
 
 func typeCheck(ftype string) error {
-	if ftype != "int32" && ftype != "int64" && ftype != "string" {
+	if ftype != "uint32" && ftype != "uint64" && ftype != "string" {
 		return ErrInvalidFieldType
 	}
 	return nil
@@ -152,10 +152,10 @@ func (f *field) StrToValue(valStr string) (interface{}, error) {
 	var v interface{}
 	var err error
 	switch f.FType {
-	case "int32":
-		v, err = utils.StrToInt32(valStr)
-	case "int64":
-		v, err = utils.StrToInt64(valStr)
+	case "uint32":
+		v, err = utils.StrToUint32(valStr)
+	case "uint64":
+		v, err = utils.StrToUint64(valStr)
 	case "string":
 		v = valStr
 	}
@@ -168,10 +168,10 @@ func (f *field) StrToValue(valStr string) (interface{}, error) {
 func (f *field) ValueToRaw(v interface{}) []byte {
 	var raw []byte
 	switch f.FType {
-	case "int32":
-		raw = utils.Int32ToRaw(v.(int32))
-	case "int64":
-		raw = utils.Int64ToRaw(v.(int64))
+	case "uint32":
+		raw = utils.Uint32ToRaw(v.(uint32))
+	case "uint64":
+		raw = utils.Uint64ToRaw(v.(uint64))
 	case "string": // 转换为VarStr
 		raw = utils.VarStrToRaw(v.(string))
 	}
@@ -182,11 +182,11 @@ func (f *field) ParseValue(raw []byte) (interface{}, int) {
 	var v interface{}
 	var shift int
 	switch f.FType {
-	case "int32":
-		v = utils.ParseInt32(raw)
+	case "uint32":
+		v = utils.ParseUint32(raw)
 		shift = 4
-	case "int64":
-		v = utils.ParseInt64(raw)
+	case "uint64":
+		v = utils.ParseUint64(raw)
 		shift = 8
 	case "string": // 解析出VarStr
 		v, shift = utils.ParseVarStr(raw)
@@ -197,10 +197,10 @@ func (f *field) ParseValue(raw []byte) (interface{}, int) {
 func (f *field) ValueToUUID(v interface{}) utils.UUID {
 	var uuid utils.UUID
 	switch f.FType {
-	case "int32":
-		uuid = utils.UUID(v.(int32))
-	case "int64":
-		uuid = utils.UUID(v.(int64))
+	case "uint32":
+		uuid = utils.UUID(v.(uint32))
+	case "uint64":
+		uuid = utils.UUID(v.(uint64))
 	case "string": // 解析出VarStr
 		uuid = utils.StrToUUID(v.(string))
 	}
@@ -210,10 +210,10 @@ func (f *field) ValueToUUID(v interface{}) utils.UUID {
 func (f *field) ValuePrint(v interface{}) string {
 	var str string
 	switch f.FType {
-	case "int32":
-		str = utils.Int32ToStr(v.(int32))
-	case "int64":
-		str = utils.Int64ToStr(v.(int64))
+	case "uint32":
+		str = utils.Uint32ToStr(v.(uint32))
+	case "uint64":
+		str = utils.Uint64ToStr(v.(uint64))
 	case "string": // 解析出VarStr
 		str = v.(string)
 	}

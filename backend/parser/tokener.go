@@ -130,7 +130,7 @@ func (tk *tokener) nextQuoteState() (string, error) {
 	return string(tmp), nil
 }
 
-func (tk *tokener) errStat() []byte {
+func (tk *tokener) ErrStat() []byte {
 	tmp := make([]byte, len(tk.stat)+3)
 	copy(tmp, tk.stat[:tk.pos])
 	copy(tmp[tk.pos:], []byte("<< "))
