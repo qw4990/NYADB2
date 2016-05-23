@@ -63,7 +63,7 @@ func (lt *lockTable) Add(xid, uid utils.UUID) (bool, chan struct{}) {
 	putIntoList(lt.wait, uid, xid)
 	if lt.hasDeadLock() == true {
 		delete(lt.xwaitu, xid)
-		removeFromList(lt.wait, xid, uid)
+		removeFromList(lt.wait, uid, xid)
 		return false, nil
 	}
 	// 如果不会造成死锁, 则等待回应

@@ -9,7 +9,7 @@ import (
 
 func main() {
 	file, _ := os.OpenFile("./create.input", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
-	file.Write([]byte("create table student name string, age int32, id int64 (index id age)\n"))
+	file.Write([]byte("create table student name string, age uint32, id uint64 (index id age)\n"))
 	file.Write([]byte("exit\n"))
 	file.Close()
 
