@@ -221,7 +221,7 @@ func (f *field) ValuePrint(v interface{}) string {
 }
 
 /*
-	TODO: right为0和left为MAX_UUID会有问题
+	TODO: right为0和left为INF会有问题
 */
 func (f *field) CalExp(exp *statement.SingleExp) (left, right utils.UUID, err error) {
 	var v interface{}

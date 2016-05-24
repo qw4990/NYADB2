@@ -30,3 +30,6 @@ TODO: 为日志文件增加自动归档和压缩功能.
 
 ##增加Vacuum
 TODO: 增加Vacuum功能.
+
+##field.CalExp不能处理0和INF
+TODO: 特殊处理这两种情况.
