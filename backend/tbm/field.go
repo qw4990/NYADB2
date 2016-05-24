@@ -220,6 +220,9 @@ func (f *field) ValuePrint(v interface{}) string {
 	return str
 }
 
+/*
+	TODO: right为0和left为MAX_UUID会有问题
+*/
 func (f *field) CalExp(exp *statement.SingleExp) (left, right utils.UUID, err error) {
 	var v interface{}
 	if exp.CmpOp == "<" {
@@ -228,7 +231,10 @@ func (f *field) CalExp(exp *statement.SingleExp) (left, right utils.UUID, err er
 		if err != nil {
 			return
 		}
-		right = f.ValueToUUID(v) + 1
+		right = f.ValueToUUID(v)
+		if right > 0 {
+			right--
+		}
 	} else if exp.CmpOp == "=" {
 		v, err = f.StrToValue(exp.Value)
 		if err != nil {
