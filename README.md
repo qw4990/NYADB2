@@ -13,9 +13,9 @@ NYADB2是一个Go编写的数据库.
 
 <b>NYADB的模型</b>: https://qw4990.gitbooks.io/nyadb/content/
 
-NYADB演示: http://www.codeyj.com/demo.html
+NYADB演示: http://www.codeyj.com/nyadb/demo.html
 
-NYADB简单的效率测试: http://www.codeyj.com/performance.html
+NYADB简单的效率测试: http://www.codeyj.com/nyadb/performance.html
 
 NYADB文法: https://qw4990.gitbooks.io/nyadb/content/chapter5.html
 
