@@ -23,6 +23,10 @@ NYADB主页: http://www.codeyj.com, http://www.nyadb.org
 
 NYADB2一些实现细节: 待续
 
+NYADB2最终结构: 
+![Alt text](https://github.com/qw4990/NYADB2/blob/master/arch.png)
+
+
 ##NYADB2运行说明
 整个DB分为客户端和服务端.
 
