@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"nyadb/backend/parser/statement"
+	"nyadb2/backend/parser/statement"
 )
 
 func TestCreate(t *testing.T) {

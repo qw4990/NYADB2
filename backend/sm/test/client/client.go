@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"nyadb/transporter"
+	"nyadb2/transporter"
 	"nyadb2/backend/utils"
 	"os"
 )
