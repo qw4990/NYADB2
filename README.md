@@ -11,6 +11,8 @@ NYADB的模型比boltDB复杂不少, 主要是为了提供更多的机制;
 
 对于想学习数据库模型的同学, 强烈推荐阅读boltDB源码, 理解boltDB模型, 阅读其代码, 不只是学习, 也是享受;
 
+boltDB分析: https://github.com/qw4990/blog/tree/master/database/boltDB
+
 # 未来计划
 
 + 更加模块化NYADB: 将NYADB的组件继续模块化, 使用更加通用的组件和概念, 使NYADB更加简单, 易学;
