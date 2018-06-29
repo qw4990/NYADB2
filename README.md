@@ -58,10 +58,10 @@ NYADB2最终结构:
 ![Alt text](https://github.com/qw4990/NYADB2/blob/master/arch.png)
 
 
-##NYADB2运行说明
+## NYADB2运行说明
 整个DB分为客户端和服务端.
 
-####服务端
+#### 服务端
 服务端启动代码为backend/launcher/launcher.go
 
 服务端启动有create和open两种模式, create既新建一份数据库, open为打开指定路径的数据库. 请参考/backend/launcher下的open.sh和create.sh
@@ -72,7 +72,7 @@ go run launcher.go -open="/tmp/nyadb" -mem="128MB"
 
 服务端的启动地址默认为"localhost:8080", 目前没有提供接口用于修改启动地址, 不过你可以在launcher.go的源码内修改.
 
-####客户端
+#### 客户端
 客户端放在client/launcher.go
 
 启动服务端后, 直接启动它即可进入客户端的shell.
@@ -80,7 +80,7 @@ go run launcher.go -open="/tmp/nyadb" -mem="128MB"
 更多信息请参考 http://www.codeyj.com/demo.html
 
 
-##关于NYADB和NYADB2
+## 关于NYADB和NYADB2
 NYADB和NYADB2的模型是一样的, NYADB2是在同样模型的基础上, 对NYADB进行的重构, 代码更加简洁.
 
 NYADB作为我实验性的作品, 已经被kill掉了.
